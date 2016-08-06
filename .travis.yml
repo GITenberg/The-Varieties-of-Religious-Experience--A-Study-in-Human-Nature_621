@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: BtaTiLL6LmKwBRDLu+zCOdp7dShmW7o7m1G1tT7Rfx3cy0jIpXm1BPjEbC82qvE4YsEJPv2djakasCWq6xKK0YtqYyRG8nLItZE1QLSUraiK8U3CSWJ80Yj0TzONdgKdEs6SWHDcPQt2md/5Hq3ZEUl+8vm3alXHededmSES/VOo8s99HOCWQRhIfUyi30G0s+Gsz7/eyVHmj/a3JlhxUc4T2HdmO2nziq+mjKWkUEmGYte0WiC8CPb1qn117sWiWDTdZu2yNUA2fbM+mY22sTc3S+x2obCQqw13ySDs6E5Wgd2ww4aA3x9+h/6YkvYYIT29+CuE4FI1Uu7knXg2sUHILiAoK09/u/xLFtIzFhcsbLcAo71jdFHjPc05Sx6a7t1Fziu9zDiiS9Vf0DFuNDf+Mvpme5A8iNs8BLn1z+qp5RNOBZQuTJSkJFJ3HONBlPIQw+w7sPkTZmACP6+5BNclLcQ+i101Ty7KzCdyVcE6S2yz4cuPrkoVkPAcQvCvBh/JKgN4ix9cM2MiubGBMM4854HF26tmfc/OrKn/pmByYoiE2MQSqxs1SBLCKh1j7CdbmU9Qcs/H/rvwDTrvTiIQsf1fq5t3Aqcj/K+Q/e+i8IxMCnikAxOEtTxYGeiOwLcRmdegGx+Q9kjLOXz4LPAK/z2h5yQNg2TuVmjV7PY=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Varieties-of-Religious-Experience--A-Study-in-Human-Nature_621
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
